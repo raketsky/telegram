@@ -1,0 +1,13 @@
+{
+	"name": "raketsky/telegram-send-message",
+	"type": "library",
+	"description": "Tiny trait to send Telegram messages",
+	"license": "MIT",
+	"autoload": {
+		"psr-4": {
+			"Raketsky\\Component\\": "src"
+		}
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true
+}
