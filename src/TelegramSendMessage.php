@@ -6,10 +6,29 @@ use Exception;
 trait TelegramSendMessage
 {
 	private $token = null;
+	private $adminChatId = null;
 	
 	public function setTelegramSendMessageToken($token)
 	{
 		$this->token = $token;
+	}
+	
+	public function setTelegramSendMessageAdmin($chatId)
+	{
+		$this->adminChatId = $chatId;
+	}
+	
+	public function sendMessageToAdmin($message, array $keyboard = null, $markDown = true, $disableNotification = false)
+	{
+		if ($this->adminChatId) {
+			$chatId = $this->adminChatId;
+		} else if (defined('TELEGRAM_SEND_MESSAGE_ADMIN') && TELEGRAM_SEND_MESSAGE_ADMIN) {
+			$chatId = TELEGRAM_SEND_MESSAGE_ADMIN;
+		} else {
+			throw new TelegramSendMessageException('No admin token provided');
+		}
+		
+		return $this->sendMessage($chatId, $message, $keyboard, $markDown, $disableNotification);
 	}
 	
 	/**
@@ -21,15 +40,19 @@ trait TelegramSendMessage
 	 * @return bool
 	 * @throws TelegramSendMessageException
 	 */
-	public function sendMessage($chatId, $message, array $keyboard = null, $markDown=true, $disableNotification = false)
+	public function sendMessage($chatId, $message, array $keyboard = null, $markDown = true, $disableNotification = false)
 	{
-		if (!$this->token) {
+		if ($this->token) {
+			$token = $this->token;
+		} else if (defined('TELEGRAM_SEND_MESSAGE_TOKEN') && TELEGRAM_SEND_MESSAGE_TOKEN) {
+			$token = TELEGRAM_SEND_MESSAGE_TOKEN;
+		} else {
 			throw new TelegramSendMessageException('No token provided');
 		}
 		
         $url = 'https://api.telegram.org/bot';
 		
-		$url = $url.$this->token.'/sendMessage?chat_id='.$chatId;
+		$url = $url.$token.'/sendMessage?chat_id='.$chatId;
 		if ($message !== null) {
 			$url .= '&text='.urlencode($message);
 			$url .= '&disable_web_page_preview=1'; // Disables link previews for links in this message
