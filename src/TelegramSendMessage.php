@@ -42,6 +42,15 @@ trait TelegramSendMessage
 	 */
 	public function sendMessage($chatId, $message, array $keyboard = null, $markDown = true, $disableNotification = false)
 	{
+		return $this->sendMessageRaw('text', $chatId, $message, $keyboard, $markDown, $disableNotification);
+	}
+	public function sendImage($chatId, $image, array $keyboard = null, $markDown = true, $disableNotification = false)
+	{
+		return $this->sendMessageRaw('image', $chatId, $image, $keyboard, $markDown, $disableNotification);
+	}
+	
+	public function sendMessageRaw($type, $chatId, $message, array $keyboard = null, $markDown = true, $disableNotification = false)
+	{
 		if ($this->token) {
 			$token = $this->token;
 		} else if (defined('TELEGRAM_SEND_MESSAGE_TOKEN') && TELEGRAM_SEND_MESSAGE_TOKEN) {
@@ -53,12 +62,14 @@ trait TelegramSendMessage
         $url = 'https://api.telegram.org/bot';
 		
 		$url = $url.$token.'/sendMessage?chat_id='.$chatId;
-		if ($message !== null) {
+		if ($type == 'text' && $message !== null) {
 			$url .= '&text='.urlencode($message);
 			$url .= '&disable_web_page_preview=1'; // Disables link previews for links in this message
 			if ($markDown) {
 				$url .= '&parse_mode=markdown';
 			}
+		} else if ($type == 'image') {
+			$url .= '&photo='.urlencode($message);
 		}
 		if ($disableNotification) {
 			$url .= '&disable_notification=1';
