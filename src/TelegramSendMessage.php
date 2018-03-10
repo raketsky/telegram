@@ -97,6 +97,13 @@ trait TelegramSendMessage
 			throw new TelegramSendMessageException('No token provided');
 		}
 		
+		if ($markDown && !isset($additionalParams['parse_mode'])) {
+			$additionalParams['parse_mode'] = 'markdown';
+		}
+		if (!isset($additionalParams['parse_mode']) || strtolower($additionalParams['parse_mode']) != 'html') {
+			$message = html_entity_decode($message);
+		}
+		
         $url = 'https://api.telegram.org/bot';
 		
 		$url = $url.$token.'/'.$type.'?chat_id='.$chatId;
@@ -127,9 +134,6 @@ trait TelegramSendMessage
 		}
 		if ($keyboard) {
 			$url .= '&reply_markup='.json_encode($keyboard);
-		}
-		if ($markDown && !isset($additionalParams['parse_mode'])) {
-			$url .= '&parse_mode=markdown';
 		}
 		if ($additionalParams) {
 			foreach ($additionalParams as $k => $v) {
