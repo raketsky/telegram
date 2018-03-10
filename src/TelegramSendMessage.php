@@ -63,7 +63,7 @@ trait TelegramSendMessage
 		return $this->sendMessageRaw('sendPhoto', $chatId, $image, $keyboard, $markDown, $disableNotification, $additionalParams);
 	}
 	
-	public function sendMessageRaw($type, $chatId, $message, array $keyboard = null, $markDown = true, $disableNotification = false, array $additionalParams = [])
+	public function sendMessageRaw($type, $chatId, $message, array $keyboard = null, $markDown = false, $disableNotification = false, array $additionalParams = [])
 	{
 		if ($this->token) {
 			$token = $this->token;
@@ -79,9 +79,6 @@ trait TelegramSendMessage
 		if (in_array($type, ['sendMessage', 'editMessageText']) && $message !== null) {
 			$url .= '&text='.urlencode($message);
 			$url .= '&disable_web_page_preview=1'; // Disables link previews for links in this message
-			if ($markDown) {
-				$url .= '&parse_mode=markdown';
-			}
 		} else if ($type == 'sendVideo' || $type == 'sendPhoto' && StringUtil::endsWith($message, '.gif')) {
 		    if ($type == 'sendPhoto') {
 				$url = str_replace('/sendPhoto?', '/sendVideo?', $url);
@@ -106,6 +103,9 @@ trait TelegramSendMessage
 		}
 		if ($keyboard) {
 			$url .= '&reply_markup='.json_encode($keyboard);
+		}
+		if ($markDown) {
+			$url .= '&parse_mode=markdown';
 		}
 		if ($additionalParams) {
 			foreach ($additionalParams as $k => $v) {
