@@ -104,7 +104,7 @@ trait TelegramSendMessage
 		if ($keyboard) {
 			$url .= '&reply_markup='.json_encode($keyboard);
 		}
-		if ($markDown) {
+		if ($markDown && !isset($additionalParams['parse_mode'])) {
 			$url .= '&parse_mode=markdown';
 		}
 		if ($additionalParams) {
@@ -141,6 +141,13 @@ trait TelegramSendMessage
 		    return false;
         }
 	}
+	
+	
+		
+	public function deleteMessage($chatId, $messageId)
+    {
+		return $this->sendMessageRaw('delete', $chatId, $messageId);
+    }
 }
 
 class TelegramSendMessageException extends Exception {}
