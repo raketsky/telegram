@@ -142,6 +142,16 @@ trait TelegramSendMessage
         }
 	}
 	
+	public function restrictChatMember($chatId, $userId, $untilDate, $canSendMessages = true, $canSendMedia = true, $canSendOther = true, $canAddWebPagePreview = true)
+	{
+		return $this->sendMessageRaw('restrictChatMember', $chatId, $userId, null, false, false, [
+			'until_date' => $untilDate,
+			'can_send_messages' => $canSendMessages ? 'True' : 'False',
+			//'can_send_media_messages' => !$canSendMedia ? 'True' : 'False',
+			//'can_send_other_messages' => !$canSendOther ? 'True' : 'False',
+			//'can_add_web_page_previews' => !$canAddWebPagePreview ? 'True' : 'False',
+		]);
+	}
 	
 		
 	public function deleteMessage($chatId, $messageId)
