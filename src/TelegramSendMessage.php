@@ -19,6 +19,15 @@ trait TelegramSendMessage
 		$this->adminChatId = $chatId;
 	}
 	
+	public function editTextMessage($chatId, $message, array $keyboard = null, $markDown = true, $disableNotification = false, array $additionalParams = [])
+	{
+		return $this->sendMessageRaw('editMessageText', $chatId, $message, $keyboard, $markDown, $disableNotification, $additionalParams);
+	}
+	public function editMessageCaption($chatId, $message, array $keyboard = null, $markDown = true, $disableNotification = false, array $additionalParams = [])
+	{
+		return $this->sendMessageRaw('editMessageCaption', $chatId, $message, $keyboard, $markDown, $disableNotification, $additionalParams);
+	}
+    
 	public function sendMessageToAdmin($message, array $keyboard = null, $markDown = true, $disableNotification = false)
 	{
 		if ($this->adminChatId) {
@@ -61,6 +70,21 @@ trait TelegramSendMessage
 	public function sendImage($chatId, $image, array $keyboard = null, $markDown = true, $disableNotification = false, array $additionalParams = [])
 	{
 		return $this->sendMessageRaw('sendPhoto', $chatId, $image, $keyboard, $markDown, $disableNotification, $additionalParams);
+	}
+	
+	public function sendVideo($chatId, $image, array $keyboard = null, $markDown = true, $disableNotification = false)
+	{
+		return $this->sendMessageRaw('sendVideo', $chatId, $image, $keyboard, $markDown, $disableNotification);
+	}
+	
+	public function sendTmpMessage($chatId, $text, $callback = null, $waittime = 2)
+	{
+		$msgId = $this->sendMessage($chatId, $text);
+		if ($callback) {
+			$callback();
+		}
+		sleep($waittime);
+		$this->deleteMessage($chatId, $msgId);
 	}
 	
 	public function sendMessageRaw($type, $chatId, $message, array $keyboard = null, $markDown = false, $disableNotification = false, array $additionalParams = [])
@@ -142,6 +166,11 @@ trait TelegramSendMessage
         }
 	}
 	
+	public function sendChatAction($chatId, $messageId)
+    {
+		return $this->sendMessageRaw('sendChatAction', $chatId, $messageId);
+    }
+	
 	public function restrictChatMember($chatId, $userId, $untilDate, $canSendMessages = true, $canSendMedia = true, $canSendOther = true, $canAddWebPagePreview = true)
 	{
 		return $this->sendMessageRaw('restrictChatMember', $chatId, $userId, null, false, false, [
@@ -156,7 +185,7 @@ trait TelegramSendMessage
 		
 	public function deleteMessage($chatId, $messageId)
     {
-		return $this->sendMessageRaw('delete', $chatId, $messageId);
+		return $this->sendMessageRaw('deleteMessage', $chatId, $messageId);
     }
 }
 
