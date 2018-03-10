@@ -2,6 +2,7 @@
 namespace Raketsky\Component;
 
 use Exception;
+use MindFly\Utils\StringUtil;
 
 trait TelegramSendMessage
 {
