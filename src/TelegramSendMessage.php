@@ -167,6 +167,10 @@ trait TelegramSendMessage
 			}
 		}
 		
+		if (!$this->beforeSendMessageRaw($url)) {
+			return false;
+		}
+		
 		$ch = curl_init();
 		$optArray = array(CURLOPT_URL => $url, CURLOPT_RETURNTRANSFER => true);
 		curl_setopt_array($ch, $optArray);
@@ -212,11 +216,20 @@ trait TelegramSendMessage
 		]);
 	}
 	
+	
+	
 		
 	public function deleteMessage($chatId, $messageId)
     {
 		return $this->sendMessageRaw('deleteMessage', $chatId, $messageId);
     }
+	
+	
+	
+	protected function beforeSendMessageRaw($url)
+	{
+		return true;
+	}
 }
 
 class TelegramSendMessageException extends Exception {}
