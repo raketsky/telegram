@@ -77,6 +77,32 @@ trait TelegramSendMessage
 		return $this->sendMessageRaw('sendVideo', $chatId, $image, $keyboard, $markDown, $disableNotification);
 	}
 	
+	/**
+	 * @param int|string $chatId              Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	 * @param int        $fromChatId          Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
+	 * @param int        $messageId           Message identifier in the chat specified in from_chat_id
+	 * @param bool|true  $disableNotification Sends the message silently. Users will receive a notification with no sound.
+	 * @return bool
+	 * @throws TelegramSendMessageException
+	 */
+	public function forwardMessage($chatId, $fromChatId, $messageId, $disableNotification = true)
+	{
+		return $this->sendMessageRaw('forwardMessage', $chatId, $messageId, null, false, $disableNotification, ['from_chat_id' => $fromChatId]);
+	}
+	
+	public function forwardToAdmin($fromChatId, $messageId, $disableNotification = true)
+	{
+		if ($this->adminChatId) {
+			$chatId = $this->adminChatId;
+		} else if (defined('TELEGRAM_SEND_MESSAGE_ADMIN') && TELEGRAM_SEND_MESSAGE_ADMIN) {
+			$chatId = TELEGRAM_SEND_MESSAGE_ADMIN;
+		} else {
+			throw new TelegramSendMessageException('No admin token provided');
+		}
+		
+		return $this->sendMessageRaw('forwardMessage', $chatId, $messageId, null, false, $disableNotification, ['from_chat_id' => $fromChatId]);
+	}
+	
 	public function sendTmpMessage($chatId, $text, $callback = null, $waittime = 2)
 	{
 		$msgId = $this->sendMessage($chatId, $text);
@@ -122,7 +148,7 @@ trait TelegramSendMessage
 			$url .= '&photo='.$message;
 		} else if ($type == 'sendChatAction') {
 		    $url .= '&action='.$message;
-		} else if ($type == 'deleteMessage') {
+		} else if (in_array($type, ['deleteMessage', 'forwardMessage'])) {
 		    $url .= '&message_id='.intval($message);
 		} else if ($type == 'restrictChatMember') {
 		    $url .= '&user_id='.intval($message);
