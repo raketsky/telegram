@@ -27,6 +27,10 @@ trait TelegramSendMessage
 	{
 		return $this->sendMessageRaw('editMessageCaption', $chatId, $message, $keyboard, $markDown, $disableNotification, $additionalParams);
 	}
+	public function editMessageReplyMarkup($chatId, $message, array $keyboard = null, $markDown = true, $disableNotification = false, array $additionalParams = [])
+	{
+		return $this->sendMessageRaw('editMessageReplyMarkup', $chatId, $message, $keyboard, $markDown, $disableNotification, $additionalParams);
+	}
     
 	public function sendMessageToAdmin($message, array $keyboard = null, $markDown = true, $disableNotification = false)
 	{
@@ -144,6 +148,8 @@ trait TelegramSendMessage
 			// TODO add caption $url .= '&caption='.urlencode('This is #gif');
 		} else if ($type == 'editMessageCaption') {
 			$url .= '&caption='.urlencode($message);
+		} else if ($type == 'editMessageReplyMarkup') {
+			//$url .= '&caption='.urlencode($message);
 		} else if ($type == 'sendPhoto') {
 			$url .= '&photo='.$message;
 		} else if ($type == 'sendChatAction') {
