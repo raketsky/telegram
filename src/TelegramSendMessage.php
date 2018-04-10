@@ -138,19 +138,31 @@ trait TelegramSendMessage
 		
 		$url = $url.$token.'/'.$type.'?chat_id='.$chatId;
 		if (in_array($type, ['sendMessage', 'editMessageText']) && $message !== null) {
+			if ($additionalParams['parse_mode'] == 'markdown') {
+				$message = str_replace('_', '\_', $message);
+			}
 			$url .= '&text='.urlencode($message);
 			$url .= '&disable_web_page_preview=1'; // Disables link previews for links in this message
 		} else if ($type == 'sendVideo' || $type == 'sendPhoto' && StringUtil::endsWith($message, '.gif')) {
 		    if ($type == 'sendPhoto') {
 				$url = str_replace('/sendPhoto?', '/sendVideo?', $url);
 			}
+			if ($additionalParams['parse_mode'] == 'markdown' && isset($additionalParams['caption'])) {
+				$additionalParams['caption'] = str_replace('_', '\_', $additionalParams['caption']);
+			}
 			$url .= '&video='.$message;
 			// TODO add caption $url .= '&caption='.urlencode('This is #gif');
 		} else if ($type == 'editMessageCaption') {
+			if ($additionalParams['parse_mode'] == 'markdown') {
+				$message = str_replace('_', '\_', $message);
+			}
 			$url .= '&caption='.urlencode($message);
 		} else if ($type == 'editMessageReplyMarkup') {
 			//$url .= '&caption='.urlencode($message);
 		} else if ($type == 'sendPhoto') {
+			if ($additionalParams['parse_mode'] == 'markdown' && isset($additionalParams['caption'])) {
+				$additionalParams['caption'] = str_replace('_', '\_', $additionalParams['caption']);
+			}
 			$url .= '&photo='.$message;
 		} else if ($type == 'sendChatAction') {
 		    $url .= '&action='.$message;
