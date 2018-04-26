@@ -182,18 +182,20 @@ trait TelegramSendMessage
 		$optArray = array(CURLOPT_URL => $url, CURLOPT_RETURNTRANSFER => true);
 		curl_setopt_array($ch, $optArray);
 		$this->response = curl_exec($ch);
-		$status = json_decode($this->response);
+		$status = json_decode($this->response, true);
 		curl_close($ch);
 		
 		sleep(1);
 		
-		if ((!$status || !isset($status->ok) || !$status->ok) && in_array($type, ['sendMessage', 'editMessageText']) && $markDown && !$this->sendMessage($chatId, $message, $keyboard, false, $disableNotification)) {
+		$isNotOk = !$status || !isset($status['ok']) || !$status['ok'];
+		$isMessageMarkdown = in_array($type, ['sendMessage', 'editMessageText']) && isset($additionalParams['parse_mode']) && $additionalParams['parse_mode'] == 'markdown';
+		if ($isNotOk && $isMessageMarkdown && !$this->sendMessage($chatId, $message, $keyboard, false, $disableNotification)) {
 			return false;
-		} else if (!$status || !isset($status->ok) || !$status->ok) {
-		    //print_r($status);
+		} else if ($isNotOk) {
+			return false;
         }
-		if ($status->ok) {
-		    return is_object($status->result) ? $status->result->message_id : true;
+		if ($status['ok']) {
+		    return isset($status['result']) ? $status['result'] : $status;
         } else {
 			if (isset($status->description) && $type != 'sendMessage') {
 				$errorMessage = '_'.$status->description.'_'."\n";
@@ -203,7 +205,7 @@ trait TelegramSendMessage
 				$errorMessage .= $url;
 				$this->sendMessageToAdmin($errorMessage);
 			}
-		    return false;
+		    return null;
         }
 	}
 	
