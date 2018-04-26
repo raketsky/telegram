@@ -189,8 +189,8 @@ trait TelegramSendMessage
 		
 		$isNotOk = !$status || !isset($status['ok']) || !$status['ok'];
 		$isMessageMarkdown = in_array($type, ['sendMessage', 'editMessageText']) && isset($additionalParams['parse_mode']) && $additionalParams['parse_mode'] == 'markdown';
-		if ($isNotOk && $isMessageMarkdown && !$this->sendMessage($chatId, $message, $keyboard, false, $disableNotification)) {
-			return false;
+		if ($isNotOk && $isMessageMarkdown) {
+			return $this->sendMessage($chatId, $message, $keyboard, false, $disableNotification);
 		} else if ($isNotOk) {
 			return false;
         }
