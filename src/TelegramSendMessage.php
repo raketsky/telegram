@@ -173,6 +173,7 @@ trait TelegramSendMessage
 			}
 		}
 		
+		$this->response = null;
 		if (!$this->beforeSendMessageRaw($url)) {
 			return false;
 		}
@@ -180,8 +181,8 @@ trait TelegramSendMessage
 		$ch = curl_init();
 		$optArray = array(CURLOPT_URL => $url, CURLOPT_RETURNTRANSFER => true);
 		curl_setopt_array($ch, $optArray);
-		$result = curl_exec($ch);
-		$status = json_decode($result);
+		$this->response = curl_exec($ch);
+		$status = json_decode($this->response);
 		curl_close($ch);
 		
 		sleep(1);
@@ -223,6 +224,11 @@ trait TelegramSendMessage
 	}
 	
 	
+	private $response = null;
+	public function getMessageRawRespone()
+	{
+		return $this->response;
+	}
 	
 		
 	public function deleteMessage($chatId, $messageId)
