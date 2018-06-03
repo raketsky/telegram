@@ -205,6 +205,9 @@ trait TelegramSendMessage
 				$errorMessage .= $url;
 				$this->sendMessageToAdmin($errorMessage);
 			}
+			if ($type == 'deleteMessage') {
+				return true;
+			}
 		    return null;
         }
 	}
