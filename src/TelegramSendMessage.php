@@ -114,7 +114,9 @@ trait TelegramSendMessage
 			$callback();
 		}
 		sleep($waittime);
-		$this->deleteMessage($chatId, $msgId);
+		if ($msgId > 1) {
+			$this->deleteMessage($chatId, $msgId);
+		}
 	}
 	
 	public function sendMessageRaw($type, $chatId, $message, array $keyboard = null, $markDown = false, $disableNotification = false, array $additionalParams = [])
