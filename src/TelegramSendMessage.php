@@ -188,6 +188,15 @@ trait TelegramSendMessage
 		sleep(1);
 		
 		$isNotOk = !$status || !isset($status['ok']) || !$status['ok'];
+		if (!$isNotOk && $type == 'deleteMessage') {
+			$errorMessage = '_'.(isset($status->description) ? $status->description : 'Unable to delete message').'_'."\n";
+			$errorMessage .= '*Chat*: '.$chatId."\n";
+			$errorMessage .= '*Type*: '.$type."\n";
+			$errorMessage .= '*Message*: '.$message."\n";
+			$errorMessage .= $url;
+			$this->sendMessageToAdmin($errorMessage);
+			return true;
+		}
 		$isMessageMarkdown = in_array($type, ['sendMessage', 'editMessageText']) && isset($additionalParams['parse_mode']) && $additionalParams['parse_mode'] == 'markdown';
 		if ($isNotOk && $isMessageMarkdown) {
 			return $this->sendMessage($chatId, $message, $keyboard, false, $disableNotification);
@@ -198,15 +207,12 @@ trait TelegramSendMessage
 		    return isset($status['result']) ? $status['result'] : $status;
         } else {
 			if (isset($status->description) && $type != 'sendMessage') {
-				$errorMessage = '_'.$status->description.'_'."\n";
+				$errorMessage = '_'.(isset($status->description) ? $status->description : 'Unable to delete message').'_'."\n";
 				$errorMessage .= '*Chat*: '.$chatId."\n";
 				$errorMessage .= '*Type*: '.$type."\n";
 				$errorMessage .= '*Message*: '.$message."\n";
 				$errorMessage .= $url;
 				$this->sendMessageToAdmin($errorMessage);
-			}
-			if ($type == 'deleteMessage') {
-				return true;
 			}
 		    return null;
         }
