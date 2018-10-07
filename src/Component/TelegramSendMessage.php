@@ -1,7 +1,7 @@
 <?php
 namespace Raketsky\Component;
 
-use MindFly\Utils\StringUtil;
+use Egosun\Util\StringUtil;
 use Raketsky\Telegram\Exception\TelegramSendMessageException;
 
 trait TelegramSendMessage
