@@ -1,8 +1,8 @@
 <?php
 namespace Raketsky\Component;
 
-use Exception;
 use MindFly\Utils\StringUtil;
+use Raketsky\Telegram\Exception\TelegramSendMessageException;
 
 trait TelegramSendMessage
 {
@@ -19,19 +19,59 @@ trait TelegramSendMessage
 		$this->adminChatId = $chatId;
 	}
 	
+	/**
+	 * @param $chatId
+	 * @param $message
+	 * @param array|null $keyboard
+	 * @param bool $markDown
+	 * @param bool $disableNotification
+	 * @param array $additionalParams
+	 * @return mixed|null
+	 * @throws TelegramSendMessageException
+	 */
 	public function editTextMessage($chatId, $message, array $keyboard = null, $markDown = true, $disableNotification = false, array $additionalParams = [])
 	{
 		return $this->sendMessageRaw('editMessageText', $chatId, $message, $keyboard, $markDown, $disableNotification, $additionalParams);
 	}
+	
+	/**
+	 * @param $chatId
+	 * @param $message
+	 * @param array|null $keyboard
+	 * @param bool $markDown
+	 * @param bool $disableNotification
+	 * @param array $additionalParams
+	 * @return mixed|null
+	 * @throws TelegramSendMessageException
+	 */
 	public function editMessageCaption($chatId, $message, array $keyboard = null, $markDown = true, $disableNotification = false, array $additionalParams = [])
 	{
 		return $this->sendMessageRaw('editMessageCaption', $chatId, $message, $keyboard, $markDown, $disableNotification, $additionalParams);
 	}
+	
+	/**
+	 * @param $chatId
+	 * @param $message
+	 * @param array|null $keyboard
+	 * @param bool $markDown
+	 * @param bool $disableNotification
+	 * @param array $additionalParams
+	 * @return mixed|null
+	 * @throws TelegramSendMessageException
+	 */
 	public function editMessageReplyMarkup($chatId, $message, array $keyboard = null, $markDown = true, $disableNotification = false, array $additionalParams = [])
 	{
 		return $this->sendMessageRaw('editMessageReplyMarkup', $chatId, $message, $keyboard, $markDown, $disableNotification, $additionalParams);
 	}
-    
+	
+	/**
+	 * @param $message
+	 * @param array|null $keyboard
+	 * @param bool $markDown
+	 * @param bool $disableNotification
+	 * @return bool
+	 * @throws TelegramSendMessageException
+	 */
 	public function sendMessageToAdmin($message, array $keyboard = null, $markDown = true, $disableNotification = false)
 	{
 		if ($this->adminChatId) {
@@ -76,6 +116,15 @@ trait TelegramSendMessage
 		return $this->sendMessageRaw('sendPhoto', $chatId, $image, $keyboard, $markDown, $disableNotification, $additionalParams);
 	}
 	
+	/**
+	 * @param $chatId
+	 * @param $image
+	 * @param array|null $keyboard
+	 * @param bool $markDown
+	 * @param bool $disableNotification
+	 * @return mixed|null
+	 * @throws TelegramSendMessageException
+	 */
 	public function sendVideo($chatId, $image, array $keyboard = null, $markDown = true, $disableNotification = false)
 	{
 		return $this->sendMessageRaw('sendVideo', $chatId, $image, $keyboard, $markDown, $disableNotification);
@@ -94,6 +143,13 @@ trait TelegramSendMessage
 		return $this->sendMessageRaw('forwardMessage', $chatId, $messageId, null, false, $disableNotification, ['from_chat_id' => $fromChatId]);
 	}
 	
+	/**
+	 * @param $fromChatId
+	 * @param $messageId
+	 * @param bool $disableNotification
+	 * @return mixed|null
+	 * @throws TelegramSendMessageException
+	 */
 	public function forwardToAdmin($fromChatId, $messageId, $disableNotification = true)
 	{
 		if ($this->adminChatId) {
@@ -107,6 +163,13 @@ trait TelegramSendMessage
 		return $this->sendMessageRaw('forwardMessage', $chatId, $messageId, null, false, $disableNotification, ['from_chat_id' => $fromChatId]);
 	}
 	
+	/**
+	 * @param $chatId
+	 * @param $text
+	 * @param null $callback
+	 * @param int $waittime
+	 * @throws TelegramSendMessageException
+	 */
 	public function sendTmpMessage($chatId, $text, $callback = null, $waittime = 2)
 	{
 		$msgId = $this->sendMessage($chatId, $text);
@@ -119,6 +182,17 @@ trait TelegramSendMessage
 		}
 	}
 	
+	/**
+	 * @param $type
+	 * @param $chatId
+	 * @param $message
+	 * @param array|null $keyboard
+	 * @param bool $markDown
+	 * @param bool $disableNotification
+	 * @param array $additionalParams
+	 * @return mixed|null
+	 * @throws TelegramSendMessageException
+	 */
 	public function sendMessageRaw($type, $chatId, $message, array $keyboard = null, $markDown = false, $disableNotification = false, array $additionalParams = [])
 	{
 		if ($this->token) {
@@ -190,13 +264,15 @@ trait TelegramSendMessage
 		sleep(1);
 		
 		$isNotOk = !$status || !isset($status['ok']) || !$status['ok'];
-		if (!$isNotOk && $type == 'deleteMessage') {
+		if ($isNotOk && $type == 'deleteMessage') {
 			$errorMessage = '_'.(isset($status->description) ? $status->description : 'Unable to delete message').'_'."\n";
 			$errorMessage .= '*Chat*: '.$chatId."\n";
 			$errorMessage .= '*Type*: '.$type."\n";
 			$errorMessage .= '*Message*: '.$message."\n";
 			$errorMessage .= $url;
 			$this->sendMessageToAdmin($errorMessage);
+			return false;
+		} elseif (!$isNotOk && $type == 'deleteMessage') {
 			return true;
 		}
 		$isMessageMarkdown = in_array($type, ['sendMessage', 'editMessageText']) && isset($additionalParams['parse_mode']) && $additionalParams['parse_mode'] == 'markdown';
@@ -206,6 +282,10 @@ trait TelegramSendMessage
 			return false;
         }
 		if ($status['ok']) {
+			if (isset($status['result']) && isset($status['result']['message_id'])) {
+				return $status['result']['message_id'];
+			}
+			
 		    return isset($status['result']) ? $status['result'] : $status;
         } else {
 			if (isset($status->description) && $type != 'sendMessage') {
@@ -220,11 +300,28 @@ trait TelegramSendMessage
         }
 	}
 	
+	/**
+	 * @param $chatId
+	 * @param $messageId
+	 * @return mixed|null
+	 * @throws TelegramSendMessageException
+	 */
 	public function sendChatAction($chatId, $messageId)
     {
 		return $this->sendMessageRaw('sendChatAction', $chatId, $messageId);
     }
 	
+	/**
+	 * @param $chatId
+	 * @param $userId
+	 * @param $untilDate
+	 * @param bool $canSendMessages
+	 * @param bool $canSendMedia
+	 * @param bool $canSendOther
+	 * @param bool $canAddWebPagePreview
+	 * @return mixed|null
+	 * @throws TelegramSendMessageException
+	 */
 	public function restrictChatMember($chatId, $userId, $untilDate, $canSendMessages = true, $canSendMedia = true, $canSendOther = true, $canAddWebPagePreview = true)
 	{
 		return $this->sendMessageRaw('restrictChatMember', $chatId, $userId, null, false, false, [
@@ -243,7 +340,13 @@ trait TelegramSendMessage
 		return $this->response;
 	}
 	
-		
+	
+	/**
+	 * @param $chatId
+	 * @param $messageId
+	 * @return mixed|null
+	 * @throws TelegramSendMessageException
+	 */
 	public function deleteMessage($chatId, $messageId)
     {
 		return $this->sendMessageRaw('deleteMessage', $chatId, $messageId);
@@ -256,5 +359,3 @@ trait TelegramSendMessage
 		return true;
 	}
 }
-
-class TelegramSendMessageException extends Exception {}
