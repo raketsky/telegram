@@ -1,5 +1,5 @@
 {
-	"name": "raketsky/telegram-send-message",
+	"name": "raketsky/telegram",
 	"type": "library",
 	"description": "Tiny trait to send Telegram messages",
 	"license": "MIT",
