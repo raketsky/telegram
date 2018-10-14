@@ -6,8 +6,8 @@ use Raketsky\Telegram\Exception\TelegramSendMessageException;
 
 trait TelegramSendMessage
 {
-	private $token = null;
-	private $adminChatId = null;
+	protected $token = null;
+	protected $adminChatId = null;
 	
 	public function setTelegramSendMessageToken($token)
 	{

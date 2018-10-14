@@ -16,6 +16,20 @@ class Client
 	}
 	
 	/**
+	 * @todo implement multiple admins + on send to admin send to all
+	 * 
+	 * @param $chatId
+	 * @return bool
+	 */
+	public function isAdmin($chatId)
+	{
+//		$chatId = isset($this->users[$chatId]) ? $this->users[$chatId] : $chatId;
+//		return in_array($chatId, $this->admins);
+		
+		return $this->adminChatId == $chatId;
+	}
+	
+	/**
 	 * @param int $count
 	 * @return array
 	 */
