@@ -15,6 +15,10 @@ class Client
 		$this->setTelegramSendMessageAdmin($adminChatId);
 	}
 	
+	/**
+	 * @param int $count
+	 * @return array
+	 */
 	public function getUpdates($count=3)
 	{
 		$data = $this->getUpdatesRaw();
