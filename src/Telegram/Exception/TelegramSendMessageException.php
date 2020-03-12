@@ -3,7 +3,12 @@ namespace Raketsky\Telegram\Exception;
 
 use Exception;
 
-class TelegramSendMessageException extends Exception
+/**
+ * Class TelegramSendMessageException
+ *
+ * @deprecated
+ */
+class TelegramSendMessageException extends TelegramClientException
 {
-	
+
 }
