@@ -228,6 +228,8 @@ trait TelegramSendMessage
 			//$url .= '&caption='.urlencode($message);
 		} else if ($type == 'sendPhoto') {
 			$url .= '&photo='.$message;
+		} else if ($type == 'sendAnimation') {
+			$url .= '&animation='.$message;
 		} else if ($type == 'sendChatAction') {
 		    $url .= '&action='.$message;
 		} else if (in_array($type, ['deleteMessage', 'forwardMessage'])) {
